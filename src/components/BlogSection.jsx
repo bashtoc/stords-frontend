@@ -29,7 +29,7 @@ const FALLBACK_POSTS = [
         slug: "moisture-vs-growth",
         title: "Hair Moisture vs. Hair Growth: Explained",
         excerpt: "Many search for growth serums when the real challenge is moisture retention. We break down the differences and key routines.",
-        image: "/ingredients_hero.png",
+        image: "/hairmoisture.png",
         date: "June 10, 2026",
         author: "STORDS Editorial",
     },

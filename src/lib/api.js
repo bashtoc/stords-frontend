@@ -1,5 +1,5 @@
 // Fetch utility for the STORDS Express Backend.
-const BACKEND_URL = import.meta.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5051";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5052";
 async function request(path, options = {}) {
     const res = await fetch(`${BACKEND_URL}${path}`, {
         cache: "no-store",
@@ -73,6 +73,12 @@ export async function registerCustomer(body) {
 }
 export async function loginCustomer(body) {
     return request("/api/auth/login", {
+        method: "POST",
+        body: jsonBody(body),
+    });
+}
+export async function verifyOtpCustomer(body) {
+    return request("/api/auth/verify-otp", {
         method: "POST",
         body: jsonBody(body),
     });

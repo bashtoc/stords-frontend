@@ -1,12 +1,10 @@
-"use client";
-import React, { use } from "react";
-
-import { Link } from "react-router-dom";
+import React from "react";
+import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Clock, Calendar } from "lucide-react";
 import { BLOG_POSTS } from "@/lib/blogData";
 import { usePost } from "@/lib/queries";
-export default function BlogPostDetailPage({ params }) {
-    const { id } = use(params);
+export default function BlogPostDetailPage() {
+    const { id } = useParams();
     const { data: backendPost, isLoading } = usePost(id);
     const fallbackPost = BLOG_POSTS.find((p) => p.id === id || p.slug === id);
     const post = backendPost || fallbackPost;

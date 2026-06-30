@@ -7,7 +7,7 @@ import { ArrowRight } from "lucide-react";
 export default function Hero() {
     return (<section className="relative w-full overflow-hidden bg-[#4A2C1A] py-20 lg:py-32">
       {/* Decorative background shadow/glow */}
-      <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-white/10 blur-3xl"/>
+      <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-white/4 blur-3xl"/>
       <div className="absolute bottom-0 right-1/4 h-[400px] w-[400px] rounded-full bg-[#D4AF37]/15 blur-2xl"/>
 
       <div className="relative mx-auto max-w-7xl px-6 sm:px-8">

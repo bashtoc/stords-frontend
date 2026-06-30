@@ -82,7 +82,7 @@ function ShopContent() {
                 {/* Image box with badges & actions */}
                 <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-accent border border-[#E5DCD3]/30">
                   <Link to={`/product/${product.id}`} className="absolute inset-0">
-                    <img src={product.image} alt={product.name} className="w-full h-full object-cover" className="object-cover group-hover:scale-105 transition-transform duration-500"/>
+                    <img src={product.image} alt={product.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"/>
                   </Link>
                   {/* Wishlist button */}
                   <button onClick={() => toggleWishlist(product)} className="absolute right-4 top-4 rounded-full bg-[#FCFBF8]/90 p-2 text-primary shadow-sm hover:scale-105 hover:bg-white transition-all" aria-label="Toggle Wishlist">

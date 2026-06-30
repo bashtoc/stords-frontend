@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,6 +20,16 @@ export default function Header() {
     const [couponInput, setCouponInput] = useState("");
     const [couponMessage, setCouponMessage] = useState(null);
     const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setIsScrolled(window.scrollY > 20);
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
     // Cart calculation
     const cartItemsCount = items.reduce((acc, item) => acc + item.quantity, 0);
     const subtotal = items.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
@@ -57,13 +67,21 @@ export default function Header() {
             setIsApplyingCoupon(false);
         }
     };
+    const isHome = pathname === "/";
+    // On homepage before scroll: dark hero bg. Otherwise: white.
+    const isHeroMode = isHome && !isScrolled;
+
     const navLinks = [
         { name: "Shop All", href: "/shop" },
         { name: "About", href: "/about" },
         { name: "Blog", href: "/blog" },
     ];
     return (<>
-      <header className="sticky top-0 z-40 w-full border-b border-[#E5DCD3]/40 bg-[#FCFBF8]/80 backdrop-blur-md">
+      <header className={`sticky top-0 z-40 w-full transition-all duration-300 ${
+        isHeroMode
+          ? "bg-[#4A2C1A] border-b border-transparent"
+          : "bg-white border-b border-[#E5DCD3]/60 shadow-sm"
+      }`}>
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 sm:px-8">
           {/* Mobile menu (Left block placeholder/trigger) */}
           <div className="flex lg:hidden">
@@ -74,40 +92,44 @@ export default function Header() {
           <nav className="hidden items-center gap-8 lg:flex">
             {navLinks.map((link) => {
             const isActive = pathname === link.href;
-            return (<Link key={link.name} to={link.href} className={`relative font-sans text-sm font-medium tracking-wide transition-colors duration-200 hover:text-primary ${isActive ? "text-primary" : "text-[#1D1D1D]/70"}`}>
+            return (<Link key={link.name} to={link.href} className={`relative font-sans text-sm font-medium tracking-wide transition-colors duration-200 ${
+                isHeroMode
+                  ? "text-white/80 hover:text-white"
+                  : isActive ? "text-primary" : "text-[#1D1D1D]/70 hover:text-primary"
+              }`}>
                   {link.name}
-                  {isActive && (<motion.span layoutId="nav-underline" className="absolute -bottom-1 left-0 h-[1.5px] w-full bg-primary" transition={{ type: "spring", stiffness: 380, damping: 30 }}/>)}
+                  {isActive && (<motion.span layoutId="nav-underline" className={`absolute -bottom-1 left-0 h-[1.5px] w-full ${isHeroMode ? "bg-white" : "bg-primary"}`} transition={{ type: "spring", stiffness: 380, damping: 30 }}/>)}
                 </Link>);
         })}
           </nav>
 
           {/* Center: Brand Logo */}
           <div className="flex-1 text-center lg:flex-none">
-            <Link to="/" className="font-serif text-2xl font-bold tracking-[0.2em] text-primary">
+            <Link to="/" className={`font-serif text-2xl font-bold tracking-[0.2em] transition-colors duration-300 ${isHeroMode ? "text-white" : "text-primary"}`}>
               STORDS
             </Link>
           </div>
 
           {/* Right: Actions */}
           <div className="flex items-center gap-4 sm:gap-6">
-            <button onClick={() => setIsSearchOpen(true)} className="text-[#1D1D1D] hover:text-primary transition-colors" aria-label="Search">
+            <button onClick={() => setIsSearchOpen(true)} className={`transition-colors ${isHeroMode ? "text-white/80 hover:text-white" : "text-[#1D1D1D] hover:text-primary"}`} aria-label="Search">
               <Search className="h-[21px] w-[21px] stroke-[1.5]"/>
             </button>
 
-            <Link to="/account" className="text-[#1D1D1D] hover:text-primary transition-colors" aria-label="Account">
+            <Link to="/account" className={`transition-colors ${isHeroMode ? "text-white/80 hover:text-white" : "text-[#1D1D1D] hover:text-primary"}`} aria-label="Account">
               <User className="h-[21px] w-[21px] stroke-[1.5]"/>
             </Link>
 
-            <button onClick={() => setIsWishlistOpen(true)} className="relative text-[#1D1D1D] hover:text-primary transition-colors" aria-label="Wishlist">
+            <button onClick={() => setIsWishlistOpen(true)} className={`relative transition-colors ${isHeroMode ? "text-white/80 hover:text-white" : "text-[#1D1D1D] hover:text-primary"}`} aria-label="Wishlist">
               <Heart className="h-[21px] w-[21px] stroke-[1.5]"/>
-              {wishlist.length > 0 && (<span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-secondary text-[9px] font-bold text-primary">
+              {wishlist.length > 0 && (<span className={`absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold ${isHeroMode ? "bg-[#D4AF37] text-[#4A2C1A]" : "bg-secondary text-primary"}`}>
                   {wishlist.length}
                 </span>)}
             </button>
 
-            <button onClick={() => setIsCartOpen(true)} className="relative text-[#1D1D1D] hover:text-primary transition-colors" aria-label="Cart">
+            <button onClick={() => setIsCartOpen(true)} className={`relative transition-colors ${isHeroMode ? "text-white/80 hover:text-white" : "text-[#1D1D1D] hover:text-primary"}`} aria-label="Cart">
               <ShoppingBag className="h-[21px] w-[21px] stroke-[1.5]"/>
-              {cartItemsCount > 0 && (<span className="absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-bold text-white">
+              {cartItemsCount > 0 && (<span className={`absolute -top-1.5 -right-1.5 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold ${isHeroMode ? "bg-[#D4AF37] text-[#4A2C1A]" : "bg-primary text-white"}`}>
                   {cartItemsCount}
                 </span>)}
             </button>

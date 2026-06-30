@@ -8,7 +8,7 @@ export const PRODUCTS = [
         price: 48.00,
         rating: 4.9,
         reviewsCount: 142,
-        image: "/hydragrow_bottle.png",
+        image: "/heroimage.png",
         category: "Oils",
         size: "50ml",
         description: "A premium blend of Batana Oil and nutrient-rich botanical oils formulated to deeply hydrate dry hair, reduce breakage, improve softness, enhance shine, and support healthier-looking, stronger hair.",
@@ -37,7 +37,7 @@ export const PRODUCTS = [
         price: 18.00,
         rating: 4.8,
         reviewsCount: 64,
-        image: "/ingredients_hero.png", // Reusing natural flat-lay look for accessories
+        image: "/neem-wood-scalp-comb.png",
         category: "Accessories",
         description: "Hand-crafted from 100% natural neem wood, this wide-tooth comb massage-stimulates the scalp to increase blood flow while evenly distributing natural oils and reducing static.",
         benefits: [
@@ -56,7 +56,7 @@ export const PRODUCTS = [
         price: 24.00,
         rating: 4.7,
         reviewsCount: 98,
-        image: "/hair_model.png", // Reusing model shot showing beautiful curls
+        image: "/satin-bonnet.png",
         category: "Accessories",
         description: "A premium, double-lined mulberry satin bonnet designed to protect your curls from friction, retain essential moisture overnight, and prevent frizz and breakage while you sleep.",
         benefits: [
@@ -75,7 +75,7 @@ export const PRODUCTS = [
         price: 32.00,
         rating: 4.8,
         reviewsCount: 77,
-        image: "/ingredients_hero.png", // Reusing layout for beautiful botanicals
+        image: "/hydrating-mist.png",
         category: "Mists",
         size: "100ml",
         description: "A refreshing, lightweight botanical spray containing rosewater and organic aloe vera to quench dry hair strands, refresh curls, and soothe itchy or irritated scalps.",

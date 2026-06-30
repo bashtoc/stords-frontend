@@ -1,14 +1,14 @@
 "use client";
-import React, { useState, use } from "react";
+import React, { useState } from "react";
 
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Star, Heart, Share2, Plus, Minus, ShoppingBag, MessageSquare } from "lucide-react";
 import { useCartStore, PRODUCTS } from "@/store/useCartStore";
 import { createProductReview } from "@/lib/api";
 import { toCartProduct } from "@/lib/productMapper";
 import { useProduct, useProductReviews } from "@/lib/queries";
-export default function ProductDetailPage({ params }) {
-    const { id } = use(params);
+export default function ProductDetailPage() {
+    const { id } = useParams();
     const { data: backendProduct, isLoading } = useProduct(id);
     const { data: backendReviews, refetch: refetchReviews } = useProductReviews(id);
     const fallbackProduct = PRODUCTS.find((p) => p.id === id);
@@ -93,7 +93,7 @@ export default function ProductDetailPage({ params }) {
         {/* Left Column: Image viewer */}
         <div className="relative lg:col-span-6 flex flex-col items-center">
           <div className="relative aspect-square w-full overflow-hidden rounded-3xl border border-[#E5DCD3]/40 bg-accent max-w-[500px]">
-            <img src={product.image} alt={product.name} className="w-full h-full object-cover" className="object-cover"/>
+            <img src={product.image} alt={product.name} className="h-full w-full object-cover"/>
           </div>
         </div>
 

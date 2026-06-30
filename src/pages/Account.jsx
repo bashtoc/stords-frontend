@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 
 import { Eye, EyeOff, User, LogOut, Package, MapPin, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
-import { fetchCurrentCustomer, fetchMyOrders, loginCustomer, logoutCustomer, registerCustomer, updateCustomerProfile, } from "@/lib/api";
+import { fetchCurrentCustomer, fetchMyOrders, loginCustomer, logoutCustomer, registerCustomer, updateCustomerProfile, verifyOtpCustomer, } from "@/lib/api";
 import { useCartStore } from "@/store/useCartStore";
 function normalizeAddress(address) {
     if (!address)
@@ -30,6 +30,8 @@ export default function AccountPage() {
     const [authError, setAuthError] = useState(null);
     const [isAuthenticating, setIsAuthenticating] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [otpChallenge, setOtpChallenge] = useState(null);
+    const [otpCode, setOtpCode] = useState("");
     const [addressForm, setAddressForm] = useState({
         address: "",
         city: "",
@@ -79,16 +81,12 @@ export default function AccountPage() {
                     firstName: firstName || "STORDS",
                     lastName: lastNameParts.join(" ") || "Customer",
                 });
-            setUser(res.user);
-            const defaultAddress = normalizeAddress(res.user.defaultAddress);
-            setAddressForm({
-                address: defaultAddress?.address || "",
-                city: defaultAddress?.city || "",
-                country: defaultAddress?.country || "United States",
-                postalCode: defaultAddress?.postalCode || "",
-            });
-            setIsEditingAddress(!defaultAddress);
-            setOrders(await fetchMyOrders());
+            if (res.requiresOtp) {
+                setOtpChallenge(res);
+                setOtpCode("");
+                return;
+            }
+            await completeAuthenticatedSession(res.user);
         }
         catch (error) {
             setAuthError(error instanceof Error ? error.message : "Unable to authenticate.");
@@ -97,11 +95,51 @@ export default function AccountPage() {
             setIsAuthenticating(false);
         }
     };
+    const completeAuthenticatedSession = async (nextUser) => {
+        setUser(nextUser);
+        const defaultAddress = normalizeAddress(nextUser.defaultAddress);
+        setAddressForm({
+            address: defaultAddress?.address || "",
+            city: defaultAddress?.city || "",
+            country: defaultAddress?.country || "United States",
+            postalCode: defaultAddress?.postalCode || "",
+        });
+        setIsEditingAddress(!defaultAddress);
+        setOrders(await fetchMyOrders());
+    };
+    const handleOtpSubmit = async (e) => {
+        e.preventDefault();
+        if (!otpChallenge)
+            return;
+        setAuthError(null);
+        setIsAuthenticating(true);
+        try {
+            const res = await verifyOtpCustomer({
+                verificationToken: otpChallenge.verificationToken,
+                code: otpCode.trim(),
+            });
+            setOtpChallenge(null);
+            setOtpCode("");
+            await completeAuthenticatedSession(res.user);
+        }
+        catch (error) {
+            setAuthError(error instanceof Error ? error.message : "Unable to verify code.");
+        }
+        finally {
+            setIsAuthenticating(false);
+        }
+    };
+    const resetOtpStep = () => {
+        setOtpChallenge(null);
+        setOtpCode("");
+        setAuthError(null);
+    };
     const handleLogout = async () => {
         await logoutCustomer().catch(() => null);
         setUser(null);
         setOrders([]);
         setFormData({ name: "Jane Doe", email: "", password: "" });
+        resetOtpStep();
         setAddressForm({ address: "", city: "", country: "United States", postalCode: "" });
         setIsEditingAddress(false);
     };
@@ -171,7 +209,25 @@ export default function AccountPage() {
             </p>
           </div>
 
-          <form onSubmit={handleAuthSubmit} className="space-y-4">
+          {otpChallenge ? (<form onSubmit={handleOtpSubmit} className="space-y-4">
+            <div className="rounded-2xl border border-[#E5DCD3]/60 bg-[#FCFBF8] p-4 text-center">
+              <p className="text-xs font-semibold text-primary">Enter the 6-digit code sent to</p>
+              <p className="mt-1 text-xs text-[#1D1D1D]/60">{otpChallenge.email}</p>
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[#1D1D1D]/50 block mb-1">
+                Verification Code
+              </label>
+              <input type="text" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} required placeholder="000000" value={otpCode} onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))} className="w-full rounded-lg border border-[#E5DCD3] bg-[#FCFBF8] px-4 py-3 text-center text-lg font-bold tracking-[0.35em] text-primary focus:border-primary focus:outline-none"/>
+            </div>
+            <button type="submit" disabled={isAuthenticating || otpCode.length !== 6} className="w-full h-11 bg-primary text-white rounded-lg text-xs font-bold hover:bg-primary-light transition-all shadow-sm disabled:opacity-60">
+              {isAuthenticating ? "Verifying..." : "Verify Code"}
+            </button>
+            {authError && <p className="text-xs font-semibold text-red-500">{authError}</p>}
+            <button type="button" onClick={resetOtpStep} className="w-full text-xs font-bold text-primary hover:text-primary-light transition-colors">
+              Use a different email
+            </button>
+          </form>) : (<form onSubmit={handleAuthSubmit} className="space-y-4">
             {authMode === "register" && (<div>
                 <label className="text-[10px] font-bold uppercase tracking-wider text-[#1D1D1D]/50 block mb-1">
                   Full Name
@@ -202,14 +258,17 @@ export default function AccountPage() {
               {isAuthenticating ? "Please wait..." : authMode === "login" ? "Sign In" : "Register Account"}
             </button>
             {authError && <p className="text-xs font-semibold text-red-500">{authError}</p>}
-          </form>
+          </form>)}
 
           {/* Toggle auth mode link */}
-          <div className="text-center mt-6">
-            <button onClick={() => setAuthMode(authMode === "login" ? "register" : "login")} className="text-xs font-bold text-primary hover:text-primary-light transition-colors">
+          {!otpChallenge && (<div className="text-center mt-6">
+            <button onClick={() => {
+                setAuthMode(authMode === "login" ? "register" : "login");
+                setAuthError(null);
+            }} className="text-xs font-bold text-primary hover:text-primary-light transition-colors">
               {authMode === "login" ? "Don't have an account? Sign Up" : "Already have an account? Sign In"}
             </button>
-          </div>
+          </div>)}
         </div>) : (
         // Customer Profile Dashboard
         <div className="space-y-10">

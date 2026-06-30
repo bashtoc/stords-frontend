@@ -28,7 +28,7 @@ export const BLOG_POSTS = [
         excerpt: "Many search for growth serums when the real challenge is moisture retention. We break down the differences and key routines.",
         category: "Science",
         readTime: "6 min read",
-        image: "/ingredients_hero.png",
+        image: "/hairmoisture.png",
         date: "June 10, 2026",
         author: "STORDS Editorial",
     },
